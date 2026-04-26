@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FATEzou V1</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--c:#00b4ff;--bg:#060c18}
+body{background:var(--bg);font-family:'Rajdhani',sans-serif;min-height:100vh;overflow-x:hidden}
+
+.page{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .65s,transform .65s;z-index:10}
+.page.out{opacity:0;transform:scale(1.05);pointer-events:none}
+.page.gone{display:none!important}
+
+/* ═══ LOADING ═══ */
+#pgLoad{background:var(--bg);z-index:300}
+#ptcl{position:absolute;inset:0;pointer-events:none}
+.ld-wrap{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center}
+.ld-av{position:relative;width:110px;height:110px;margin-bottom:22px}
+.ld-r2{position:absolute;inset:-14px;border-radius:50%;border:1px solid rgba(0,180,255,.18);animation:spin 5s linear infinite reverse}
+.ld-r2::before{content:'';position:absolute;width:9px;height:9px;background:#00b4ff;border-radius:50%;top:50%;left:-4.5px;transform:translateY(-50%);box-shadow:0 0 12px #00b4ff}
+.ld-r1{position:absolute;inset:-4px;border-radius:50%;background:conic-gradient(#00b4ff,#0033cc,#00e5ff,#00b4ff);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:destination-out;mask-composite:exclude;padding:2.5px;animation:spin 2.2s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ld-img{width:110px;height:110px;border-radius:50%;object-fit:cover;border:3px solid #07101f;background:linear-gradient(135deg,#1a3a5c,#0a1a2e);position:relative;z-index:1;animation:popIn .9s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.ld-dot{position:absolute;bottom:5px;right:5px;width:13px;height:13px;background:#00e5ff;border-radius:50%;border:3px solid var(--bg);z-index:2;box-shadow:0 0 10px #00e5ff;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.ld-title{font-family:'Orbitron',sans-serif;font-size:clamp(30px,8vw,50px);font-weight:900;font-style:italic;color:#fff;letter-spacing:2px;text-shadow:0 0 32px rgba(0,180,255,.55);animation:su .7s .25s both}
+.ld-sub{font-size:11px;color:var(--c);letter-spacing:5px;margin-top:7px;text-transform:uppercase;animation:su .7s .4s both}
+@keyframes su{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.ld-bwrap{width:min(300px,78vw);margin-top:34px;animation:su .7s .55s both}
+.ld-blbl{display:flex;justify-content:space-between;margin-bottom:7px;font-size:10px;color:#3a5060;letter-spacing:1px}
+.ld-bbg{height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+.ld-bfill{height:100%;width:0%;background:linear-gradient(90deg,#00b4ff,#00e5ff);border-radius:2px;box-shadow:0 0 10px rgba(0,180,255,.7);transition:width .18s linear}
+.ld-pct{text-align:center;margin-top:8px;font-family:'Orbitron',sans-serif;font-size:13px;color:var(--c);letter-spacing:2px}
+.ld-st{text-align:center;margin-top:6px;font-size:10px;color:#2a4050;letter-spacing:.5px}
+
+/* ═══ GATE ═══ */
+#pgGate{background:var(--bg);z-index:200}
+.gt-bg{position:absolute;inset:0;background:radial-gradient(ellipse 70% 45% at 50% -10%,rgba(0,180,255,.08) 0%,transparent 65%);pointer-events:none}
+.gt-card{position:relative;z-index:2;background:linear-gradient(165deg,#0d1b2e,#080f1d);border:1.5px solid rgba(0,180,255,.38);border-radius:26px;padding:36px 28px 30px;width:min(340px,92vw);display:flex;flex-direction:column;align-items:center;gap:17px;box-shadow:0 0 60px rgba(0,180,255,.07),inset 0 1px 0 rgba(255,255,255,.05);animation:gIn .65s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes gIn{from{transform:translateY(44px) scale(.88);opacity:0}to{transform:none;opacity:1}}
+.gt-card::before{content:'';position:absolute;top:-1px;left:22%;right:22%;height:2px;background:linear-gradient(90deg,transparent,rgba(0,180,255,.8),transparent)}
+.gt-lock{width:60px;height:60px;background:rgba(0,180,255,.07);border:1.5px solid rgba(0,180,255,.28);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:25px;animation:lkp 2.2s ease-in-out infinite}
+@keyframes lkp{0%,100%{box-shadow:0 0 14px rgba(0,180,255,.12)}50%{box-shadow:0 0 28px rgba(0,180,255,.32)}}
+.gt-title{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;font-style:italic;color:#fff;letter-spacing:1px}
+.gt-desc{font-size:13px;color:#6272a4;text-align:center;line-height:1.75}
+.gt-desc strong{color:var(--c)}
+.gt-wa{width:100%;background:rgba(37,211,102,.07);border:1.5px solid rgba(37,211,102,.28);border-radius:13px;padding:13px 15px;display:flex;align-items:center;gap:12px}
+.gt-ico{width:40px;height:40px;flex-shrink:0;border-radius:10px;background:linear-gradient(135deg,#25d366,#128c7e);display:flex;align-items:center;justify-content:center;font-size:19px}
+.gt-wname{font-size:13px;font-weight:700;color:#fff}
+.gt-wsub{font-size:10px;color:#3a8a5a;margin-top:2px}
+.btn-follow{width:100%;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,#25d366,#128c7e);color:#fff;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .22s;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:9px;box-shadow:0 4px 16px rgba(37,211,102,.28);text-transform:uppercase}
+.btn-follow:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(37,211,102,.42)}
+.btn-already{width:100%;padding:11px;border-radius:12px;border:1.5px solid rgba(0,180,255,.22);background:transparent;color:#4a5f75;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all .2s}
+.btn-already:hover{border-color:rgba(0,180,255,.55);color:var(--c)}
+.gt-note{font-size:9px;color:#1e2e3e;text-align:center}
+
+/* ═══ MAIN APP ═══ */
+#pgApp{position:static;display:none;flex-direction:column;align-items:center;padding:24px 14px 48px;min-height:100vh;opacity:0;transition:opacity .7s;gap:14px}
+#pgApp.show{display:flex}
+#pgApp.visible{opacity:1}
+
+/* ── CARD persis gambar ── */
+.main-card{background:linear-gradient(175deg,#0d1b2e,#080f1d);border:1.5px solid rgba(0,180,255,.38);border-radius:22px;padding:26px 18px 20px;width:min(260px,92vw);display:flex;flex-direction:column;align-items:center;gap:12px;position:relative;box-shadow:0 0 40px rgba(0,180,255,.06),inset 0 1px 0 rgba(255,255,255,.04)}
+.main-card::before{content:'';position:absolute;top:-1px;left:18%;right:18%;height:2px;background:linear-gradient(90deg,transparent,rgba(0,180,255,.85),transparent)}
+
+.av-wrap{position:relative;width:78px;height:78px}
+.av-ring{position:absolute;inset:-3px;border-radius:50%;background:conic-gradient(#00b4ff,#0033cc,#00e5ff,#0033cc,#00b4ff);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:destination-out;mask-composite:exclude;padding:2px;animation:spin 3.5s linear infinite}
+.av-img{width:78px;height:78px;border-radius:50%;object-fit:cover;display:block;background:linear-gradient(135deg,#1a3a5c,#0a1a2e);position:relative;z-index:1;border:2px solid #07101f}
+.av-dot{position:absolute;bottom:2px;right:2px;width:11px;height:11px;border-radius:50%;background:#00e5ff;border:2.5px solid #07101f;z-index:2;box-shadow:0 0 8px #00e5ff}
+
+.card-title{font-family:'Orbitron',sans-serif;font-size:20px;font-weight:900;font-style:italic;color:#fff;letter-spacing:.5px;text-align:center}
+
+.input-nomor{width:100%;padding:11px 14px;border-radius:12px;border:1.5px solid rgba(0,180,255,.32);background:rgba(0,16,32,.75);color:#fff;font-family:'Share Tech Mono',monospace;font-size:14px;letter-spacing:1.5px;outline:none;transition:border-color .2s}
+.input-nomor:focus{border-color:rgba(0,180,255,.7);box-shadow:0 0 14px rgba(0,180,255,.18)}
+.input-nomor::placeholder{color:#1e3a4a}
+.input-nomor:disabled{opacity:.35;cursor:not-allowed}
+
+.btn-deploy{width:100%;padding:12px;border-radius:12px;border:1.5px solid rgba(0,180,255,.62);background:rgba(0,16,36,.65);color:#fff;font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .2s;text-transform:uppercase}
+.btn-deploy:hover{background:rgba(0,180,255,.1);box-shadow:0 0 18px rgba(0,180,255,.28)}
+.btn-deploy:active{transform:scale(.97)}
+.btn-deploy.running{border-color:rgba(255,70,70,.65);background:rgba(200,30,30,.12);color:#ff8080}
+.btn-deploy:disabled{opacity:.35;cursor:not-allowed}
+
+.ext-row{width:100%;background:rgba(255,255,255,.04);border-radius:12px;padding:12px 15px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background .2s}
+.ext-row:hover{background:rgba(255,255,255,.07)}
+.ext-lbl{color:#5a6a80;font-size:14px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ext-chv{color:#5a6a80;font-size:17px;margin-left:8px}
+
+.time-row{width:100%;background:rgba(255,255,255,.04);border-radius:12px;padding:12px 15px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all .2s;border:1.5px solid transparent}
+.time-row:hover{background:rgba(255,255,255,.07)}
+.time-row.active{border-color:rgba(0,180,255,.45);background:rgba(0,180,255,.07)}
+.time-lbl{color:#fff;font-size:19px;font-weight:700;letter-spacing:1px}
+.time-sub{font-size:9px;color:#3a5060;margin-top:2px}
+.time-ico{color:#5a6a80;font-size:14px}
+
+/* Cooldown ring */
+.cd-ring-wrap{width:100%;display:none;flex-direction:column;align-items:center;gap:6px}
+.cd-ring-wrap.show{display:flex}
+.cd-ring-svg{width:90px;height:90px}
+.cd-ring-bg{fill:none;stroke:rgba(0,180,255,.12);stroke-width:6}
+.cd-ring-fg{fill:none;stroke:url(#cdGrad);stroke-width:6;stroke-linecap:round;stroke-dasharray:245;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear;transform:rotate(-90deg);transform-origin:50% 50%}
+.cd-ring-txt{font-family:'Orbitron',sans-serif;font-size:14px;fill:#00b4ff;font-weight:700;text-anchor:middle;dominant-baseline:middle}
+.cd-ring-sub{font-size:8px;fill:#3a5060;text-anchor:middle}
+.cd-label{font-size:10px;color:#3a5060;letter-spacing:1px;font-family:'Orbitron',sans-serif}
+
+/* Interval bar */
+.rep-wrap{width:100%;display:none}
+.rep-wrap.show{display:block}
+.rep-top{display:flex;justify-content:space-between;font-size:10px;color:#3a5060;letter-spacing:.5px;margin-bottom:5px}
+.rep-top span:last-child{font-family:'Orbitron',sans-serif;font-size:10px;color:var(--c)}
+.rep-bg{height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+.rep-fill{height:100%;background:linear-gradient(90deg,#00b4ff,#00e5ff);border-radius:2px;transition:width 1s linear;box-shadow:0 0 8px rgba(0,180,255,.5)}
+
+/* Clock */
+.clock-wrap{width:100%;text-align:center;padding:2px 0}
+.clock-time{font-family:'Orbitron',sans-serif;font-size:34px;font-weight:700;color:var(--c);letter-spacing:4px;text-shadow:0 0 16px rgba(0,180,255,.65)}
+.clock-date{font-size:11px;color:#3a5060;letter-spacing:1px;margin-top:5px;font-weight:600}
+
+.dots-row{display:flex;gap:5px;margin-top:2px}
+.dot{width:7px;height:7px;border-radius:50%;background:rgba(0,180,255,.18);transition:all .28s}
+.dot.on{background:var(--c);box-shadow:0 0 6px var(--c)}
+
+/* Status bar */
+.status-bar{width:min(480px,96vw);background:rgba(0,180,255,.06);border:1px solid rgba(0,180,255,.2);border-radius:10px;padding:8px 14px;font-size:11px;color:var(--c);font-family:'Orbitron',sans-serif;letter-spacing:1px;text-align:center;display:none}
+.status-bar.show{display:block}
+.status-bar.warn{background:rgba(255,160,0,.07);border-color:rgba(255,160,0,.25);color:#ffa040}
+.status-bar.ok{background:rgba(0,255,100,.06);border-color:rgba(0,255,100,.2);color:#00e87a}
+
+/* Stats */
+.st-row{display:flex;gap:6px;width:min(480px,96vw)}
+.st-box{flex:1;background:rgba(255,255,255,.03);border-radius:9px;padding:7px 6px;text-align:center;border:1px solid rgba(0,180,255,.08)}
+.st-val{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;color:var(--c)}
+.st-lbl{font-size:9px;color:#2a3a4a;margin-top:1px;letter-spacing:.4px}
+
+/* Log */
+.log-section{width:min(480px,96vw);display:flex;flex-direction:column;gap:8px}
+.log-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.log-ttl{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--c);letter-spacing:1px}
+.log-badges{display:flex;gap:6px;flex-wrap:wrap}
+.badge{font-size:10px;font-weight:700;padding:2px 9px;border-radius:14px}
+.b-tot{background:rgba(0,180,255,.1);color:var(--c);border:1px solid rgba(0,180,255,.28)}
+.b-ok{background:rgba(0,255,100,.08);color:#00e87a;border:1px solid rgba(0,255,100,.25)}
+.b-fail{background:rgba(255,70,70,.08);color:#ff6060;border:1px solid rgba(255,70,70,.25)}
+.legend{display:flex;gap:10px;flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:4px;font-size:9px;color:#2a3a4a}
+.ldot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.log-scroll{max-height:540px;overflow-y:auto;display:flex;flex-direction:column;gap:5px}
+.log-scroll::-webkit-scrollbar{width:2px}
+.log-scroll::-webkit-scrollbar-thumb{background:rgba(0,180,255,.2);border-radius:1px}
+.round-hdr{font-family:'Orbitron',sans-serif;font-size:9px;color:#3a5060;letter-spacing:1px;padding:5px 2px 3px;border-bottom:1px solid rgba(255,255,255,.05);margin-bottom:3px}
+.otp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(136px,1fr));gap:4px}
+.otp-card{background:rgba(255,255,255,.03);border-radius:8px;padding:7px 9px;border:1px solid rgba(255,255,255,.06);transition:border-color .3s,background .3s;animation:fdin .25s both}
+@keyframes fdin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.otp-card.ok  {border-color:rgba(0,255,130,.28);background:rgba(0,255,100,.04)}
+.otp-card.fail{border-color:rgba(255,70,70,.22);background:rgba(255,70,70,.03)}
+.otp-card.pend{border-color:rgba(0,180,255,.28);background:rgba(0,180,255,.04);animation:fdin .25s both,glow .9s ease-in-out infinite alternate}
+@keyframes glow{from{box-shadow:none}to{box-shadow:0 0 7px rgba(0,180,255,.22)}}
+.oc-num{font-family:'Share Tech Mono',monospace;font-size:14px;color:#fff;letter-spacing:2px}
+.oc-name{font-size:9px;color:#3a5060;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.oc-st{font-size:9px;margin-top:3px;font-weight:700}
+.oc-st.ok  {color:#00e87a}
+.oc-st.fail{color:#ff6060}
+.oc-st.pend{color:var(--c)}
+.empty-log{text-align:center;color:#1e2e3e;font-size:11px;padding:36px 0;font-family:'Orbitron',sans-serif;letter-spacing:1.5px}
+
+/* Modal */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;justify-content:center;align-items:center}
+.modal-ov.open{display:flex}
+.modal{background:#0d1b2e;border:1.5px solid rgba(0,180,255,.38);border-radius:18px;padding:20px 16px;width:min(320px,94vw);max-height:80vh;overflow-y:auto}
+.modal-ttl{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--c);margin-bottom:12px;text-align:center;letter-spacing:1px}
+.msec{font-size:10px;color:#3a5060;letter-spacing:1px;font-weight:700;margin:10px 0 6px;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.05);padding-bottom:4px}
+.api-item{background:rgba(255,255,255,.03);border-radius:7px;padding:7px 11px;margin-bottom:4px;border:1px solid rgba(0,180,255,.08)}
+.api-name{font-size:12px;font-weight:700;color:#fff}
+.api-ep{font-size:8px;color:#3a5060;font-family:monospace;margin-top:2px;word-break:break-all}
+.modal-close{width:100%;padding:9px;border-radius:10px;border:1px solid rgba(0,180,255,.35);background:transparent;color:var(--c);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;margin-top:8px}
+.modal-close:hover{background:rgba(0,180,255,.09)}
+.modal::-webkit-scrollbar{width:2px}
+.modal::-webkit-scrollbar-thumb{background:rgba(0,180,255,.28);border-radius:1px}
+</style>
+</head>
+<body>
+
+<!-- ════ LOADING ════ -->
+<div id="pgLoad" class="page">
+  <canvas id="ptcl"></canvas>
+  <div class="ld-wrap">
+    <div class="ld-av">
+      <div class="ld-r2"></div><div class="ld-r1"></div>
+      <img class="ld-img" src="https://h.top4top.io/m_3762tgrbk1.m4a" alt=""
+        onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 110 110%22%3E%3Ccircle cx=%2255%22 cy=%2255%22 r=%2255%22 fill=%22%230d1b2e%22/%3E%3Ccircle cx=%2255%22 cy=%2240%22 r=%2222%22 fill=%22%2300b4ff22%22/%3E%3Cellipse cx=%2255%22 cy=%2296%22 rx=%2235%22 ry=%2222%22 fill=%22%2300b4ff18%22/%3E%3C/svg%3E'">
+      <div class="ld-dot"></div>
+    </div>
+    <div class="ld-title">FATEzou V1</div>
+    <div class="ld-sub">OTP Blast · by Da1chi</div>
+    <div class="ld-bwrap">
+      <div class="ld-blbl"><span id="ldMsg">Init...</span><span id="ldPctLbl">0%</span></div>
+      <div class="ld-bbg"><div class="ld-bfill" id="ldBar"></div></div>
+      <div class="ld-pct" id="ldPct">0%</div>
+      <div class="ld-st" id="ldSt">&nbsp;</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ GATE ════ -->
+<div id="pgGate" class="page out">
+  <div class="gt-bg"></div>
+  <div class="gt-card">
+    <div class="gt-lock">🔒</div>
+    <div class="gt-title">FATEzou V1</div>
+    <div class="gt-desc">Untuk akses <strong>FATEzou V1</strong>,<br>follow dulu channel WhatsApp kami.</div>
+    <div class="gt-wa">
+      <div class="gt-ico">📢</div>
+      <div>
+        <div class="gt-wname">FATEzou — Da1chi</div>
+        <div class="gt-wsub">WhatsApp Channel Resmi</div>
+      </div>
+    </div>
+    <a class="btn-follow" href="https://whatsapp.com/channel/0029VbCk2Il23n3glAUx7k2n" target="_blank" onclick="onFollowed()">
+      <span>📲</span><span>FOLLOW CHANNEL</span>
+    </a>
+    <button class="btn-already" id="btnAlready" onclick="enterApp()">Sudah Follow — Masuk Sekarang</button>
+    <div class="gt-note">⚠️ Gunakan hanya untuk nomor sendiri / testing</div>
+  </div>
+</div>
+
+<!-- ════ MAIN APP ════ -->
+<div id="pgApp">
+
+  <div class="main-card">
+    <div class="av-wrap">
+      <div class="av-ring"></div>
+      <img class="av-img" src="https://h.top4top.io/m_3762tgrbk1.m4a" alt=""
+        onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 78 78%22%3E%3Ccircle cx=%2239%22 cy=%2239%22 r=%2239%22 fill=%22%230d1b2e%22/%3E%3Ccircle cx=%2239%22 cy=%2229%22 r=%2216%22 fill=%22%2300b4ff22%22/%3E%3C/svg%3E'">
+      <div class="av-dot"></div>
+    </div>
+
+    <div class="card-title">FATEzou V1</div>
+
+    <input class="input-nomor" id="inputNomor" type="tel" placeholder="08xxxxxxxxxx" maxlength="14">
+
+    <button class="btn-deploy" id="deployBtn" onclick="toggleDeploy()">Deploy</button>
+
+    <div class="ext-row" onclick="openModal()">
+      <span class="ext-lbl" id="extLbl">ext: 0884642735</span>
+      <span class="ext-chv">›</span>
+    </div>
+
+    <!-- 30s -->
+    <div class="time-row active" id="btn30" onclick="setTime(30)">
+      <div><div class="time-lbl">30 s</div><div class="time-sub">Interval blast tiap 30 detik</div></div>
+      <span class="time-ico">⧉</span>
+    </div>
+
+    <!-- 60s -->
+    <div class="time-row" id="btn60" onclick="setTime(60)">
+      <div><div class="time-lbl">60 s</div><div class="time-sub">Interval blast tiap 60 detik</div></div>
+      <span class="time-ico">⧉</span>
+    </div>
+
+    <!-- Cooldown ring 2 menit -->
+    <div class="cd-ring-wrap" id="cdRingWrap">
+      <svg class="cd-ring-svg" viewBox="0 0 90 90">
+        <defs>
+          <linearGradient id="cdGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#ff6060"/>
+            <stop offset="60%" stop-color="#ffa040"/>
+            <stop offset="100%" stop-color="#00b4ff"/>
+          </linearGradient>
+        </defs>
+        <circle class="cd-ring-bg" cx="45" cy="45" r="39"/>
+        <circle class="cd-ring-fg" id="cdRingFg" cx="45" cy="45" r="39"/>
+        <text class="cd-ring-txt" x="45" y="43" id="cdRingTime">2:00</text>
+        <text class="cd-ring-sub" x="45" y="56">COOLDOWN</text>
+      </svg>
+      <div class="cd-label" id="cdLabel">Cooldown wajib 2 menit...</div>
+    </div>
+
+    <!-- Interval bar antar round -->
+    <div class="rep-wrap" id="repWrap">
+      <div class="rep-top"><span id="repMsg">Next blast in...</span><span id="repSec">0s</span></div>
+      <div class="rep-bg"><div class="rep-fill" id="repFill" style="width:100%"></div></div>
+    </div>
+
+    <div class="clock-wrap">
+      <div class="clock-time" id="clkT">00:00</div>
+      <div class="clock-date" id="clkD"></div>
+    </div>
+
+    <div class="dots-row">
+      <div class="dot on"></div><div class="dot"></div><div class="dot"></div>
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      <div class="dot"></div><div class="dot"></div>
+    </div>
+  </div>
+
+  <div class="status-bar" id="statusBar">READY</div>
+
+  <div class="st-row">
+    <div class="st-box"><div class="st-val" id="stTotal">0</div><div class="st-lbl">TOTAL</div></div>
+    <div class="st-box"><div class="st-val" id="stRound">0</div><div class="st-lbl">ROUND</div></div>
+    <div class="st-box"><div class="st-val" id="stOk"   style="color:#00e87a">0</div><div class="st-lbl">OK</div></div>
+    <div class="st-box"><div class="st-val" id="stFail" style="color:#ff6060">0</div><div class="st-lbl">FAIL</div></div>
+  </div>
+
+  <div class="log-section">
+    <div class="log-top">
+      <div class="log-ttl">📡 OTP BLAST LOG</div>
+      <div class="log-badges">
+        <span class="badge b-tot" id="bTot">TOTAL: 0</span>
+        <span class="badge b-ok"  id="bOk">✓ 0</span>
+        <span class="badge b-fail" id="bFail">✗ 0</span>
+      </div>
+    </div>
+    <div class="legend">
+      <div class="leg"><div class="ldot" style="background:#00e87a"></div>OK = server merespons (2xx/3xx/4xx)</div>
+      <div class="leg"><div class="ldot" style="background:#ff6060"></div>FAIL = timeout / tidak merespons</div>
+    </div>
+    <div class="log-scroll" id="logScroll">
+      <div class="empty-log" id="emptyLog">WAITING FOR BLAST...</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL endpoint list -->
+<div class="modal-ov" id="modalOv" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-ttl">📡 50 ENDPOINT SERVER-SIDE</div>
+    <div class="msec">💳 Fintech / Pinjol Lokal (30)</div>
+    <div id="listA"></div>
+    <div class="msec">🛒 App / E-Commerce (20)</div>
+    <div id="listB"></div>
+    <button class="modal-close" onclick="closeModal()">✕ TUTUP</button>
+  </div>
+</div>
+
+<script>
+/* ════ PARTICLES ════ */
+const cv=document.getElementById('ptcl'),cx=cv.getContext('2d');
+function rsz(){cv.width=innerWidth;cv.height=innerHeight}rsz();addEventListener('resize',rsz);
+const pts=Array.from({length:48},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.3+.3,dx:(Math.random()-.5)*.28,dy:(Math.random()-.5)*.28,a:Math.random()*.5+.2}));
+(function ap(){cx.clearRect(0,0,cv.width,cv.height);pts.forEach(p=>{cx.beginPath();cx.arc(p.x,p.y,p.r,0,Math.PI*2);cx.fillStyle=`rgba(0,180,255,${p.a*.28})`;cx.fill();p.x+=p.dx;p.y+=p.dy;if(p.x<0||p.x>cv.width)p.dx*=-1;if(p.y<0||p.y>cv.height)p.dy*=-1});requestAnimationFrame(ap)})();
+
+/* ════ LOADING ════ */
+const LS=[{p:10,m:'Init sistem...',t:200},{p:26,m:'Koneksi ke server...',t:600},{p:44,m:'Load 50 endpoints...',t:1050},{p:60,m:'Setup cooldown engine...',t:1500},{p:76,m:'Init blast core...',t:1950},{p:91,m:'Finalisasi...',t:2380},{p:100,m:'Siap ✓',t:2800}];
+LS.forEach(s=>setTimeout(()=>{
+  document.getElementById('ldBar').style.width=s.p+'%';
+  document.getElementById('ldPct').textContent=s.p+'%';
+  document.getElementById('ldPctLbl').textContent=s.p+'%';
+  document.getElementById('ldMsg').textContent=s.m;
+  document.getElementById('ldSt').textContent=s.m;
+},s.t));
+setTimeout(()=>{
+  document.getElementById('pgLoad').classList.add('out');
+  setTimeout(()=>{document.getElementById('pgLoad').classList.add('gone');document.getElementById('pgGate').classList.remove('out');},650);
+},3300);
+
+/* ════ GATE ════ */
+function onFollowed(){setTimeout(()=>{const b=document.getElementById('btnAlready');b.textContent='✓ Sudah Follow — Masuk';b.style.borderColor='rgba(37,211,102,.5)';b.style.color='#25d366';},700)}
+function enterApp(){
+  document.getElementById('pgGate').classList.add('out');
+  setTimeout(()=>{
+    document.getElementById('pgGate').classList.add('gone');
+    const a=document.getElementById('pgApp');a.classList.add('show');
+    setTimeout(()=>a.classList.add('visible'),40);
+    tickClock();
+  },650);
+}
+
+/* ════ MODAL — daftar endpoint (informatif) ════ */
+const EP_LIST=[
+  {cat:'A',name:'UangMe',url:'api.uangme.id'},{cat:'A',name:'SpeedCash',url:'api.speedcash.co.id'},
+  {cat:'A',name:'Adira Finance',url:'myadira.adira.co.id'},{cat:'A',name:'Akulaku',url:'akulaku.com'},
+  {cat:'A',name:'Kredivo',url:'kredivo.com'},{cat:'A',name:'Kredit Pintar',url:'kreditpintar.com'},
+  {cat:'A',name:'Indodana',url:'indodana.com'},{cat:'A',name:'Tunaiku',url:'tunaiku.com'},
+  {cat:'A',name:'Julo',url:'julo.co.id'},{cat:'A',name:'Easycash',url:'easycash.co.id'},
+  {cat:'A',name:'Pinjam Modal',url:'pinjammodal.id'},{cat:'A',name:'DanaRupiah',url:'danarupiah.id'},
+  {cat:'A',name:'FinPlus',url:'finplus.co.id'},{cat:'A',name:'Maucash',url:'maucash.id'},
+  {cat:'A',name:'Kredito',url:'kredito.id'},{cat:'A',name:'Rupiah Cepat',url:'rupiahcepat.co.id'},
+  {cat:'A',name:'AdaKami',url:'adakami.id'},{cat:'A',name:'Kredinesia',url:'kredinesia.id'},
+  {cat:'A',name:'CashWagon',url:'cashwagon.id'},{cat:'A',name:'Danacita',url:'danacita.co.id'},
+  {cat:'A',name:'Payfazz',url:'payfazz.com'},{cat:'A',name:'Modalku',url:'modalku.co.id'},
+  {cat:'A',name:'Investree',url:'investree.id'},{cat:'A',name:'KoinWorks',url:'koinworks.com'},
+  {cat:'A',name:'Alami',url:'alamisharia.co.id'},{cat:'A',name:'Tanifund',url:'tanifund.com'},
+  {cat:'A',name:'Akseleran',url:'akseleran.co.id'},{cat:'A',name:'Pluang',url:'pluang.com'},
+  {cat:'A',name:'iGrow',url:'igrow.asia'},{cat:'A',name:'Crowde',url:'crowde.co'},
+  {cat:'B',name:'Tokopedia WA',url:'accounts.tokopedia.com'},{cat:'B',name:'Tokopedia SMS',url:'accounts.tokopedia.com'},
+  {cat:'B',name:'Bukalapak',url:'api.bukalapak.com'},{cat:'B',name:'Blibli',url:'blibli.com'},
+  {cat:'B',name:'Halodoc',url:'halodoc.com'},{cat:'B',name:'Alodokter',url:'alodokter.com'},
+  {cat:'B',name:'Dekoruma',url:'dekoruma.com'},{cat:'B',name:'KlikIndomaret',url:'klikindomaret.com'},
+  {cat:'B',name:'Indihome',url:'indihome.co.id'},{cat:'B',name:'Misteraladin',url:'misteraladin.com'},
+  {cat:'B',name:'Traveloka',url:'traveloka.com'},{cat:'B',name:'Tiket.com',url:'tiket.com'},
+  {cat:'B',name:'Sampingan',url:'sampingan.co.id'},{cat:'B',name:'Ginee',url:'ginee.com'},
+  {cat:'B',name:'Oyo Rooms',url:'oyorooms.com'},{cat:'B',name:'Harvestcake',url:'harvestcakes.com'},
+  {cat:'B',name:'Tokomanamana',url:'tokomanamana.com'},{cat:'B',name:'Harnic',url:'harnic.id'},
+  {cat:'B',name:'Pizzahut ID',url:'pizzahut.co.id'},{cat:'B',name:'Danacita SMS',url:'danacita.co.id'},
+];
+function renderModal(){
+  ['listA','listB'].forEach(id=>document.getElementById(id).innerHTML='');
+  EP_LIST.forEach(ep=>{
+    const d=document.createElement('div');d.className='api-item';
+    d.innerHTML=`<div class="api-name">${ep.cat==='A'?'💳':'🛒'} ${ep.name}</div><div class="api-ep">server-side → ${ep.url}</div>`;
+    document.getElementById(ep.cat==='A'?'listA':'listB').appendChild(d);
+  });
+}
+renderModal();
+function openModal(){document.getElementById('modalOv').classList.add('open')}
+function closeModal(){document.getElementById('modalOv').classList.remove('open')}
+
+/* ════ STATE ════ */
+let running=false,selTime=30,roundN=0,totalOk=0,totalFail=0,totalSent=0;
+let mainTimer=null;
+const CD=120; // cooldown wajib 2 menit
+
+function setTime(s){
+  selTime=s;
+  document.getElementById('btn30').classList.toggle('active',s===30);
+  document.getElementById('btn60').classList.toggle('active',s===60);
+}
+
+function setStatus(msg,type=''){
+  const sb=document.getElementById('statusBar');
+  sb.textContent=msg;sb.className='status-bar show';
+  if(type)sb.classList.add(type);
+}
+
+function toggleDeploy(){
+  const nomor=document.getElementById('inputNomor').value.trim().replace(/\D/g,'');
+  if(running){stopBlast();return;}
+  if(!nomor||nomor.length<9){alert('⚠️ Masukkan nomor HP!\nContoh: 08123456789');return;}
+  if(!nomor.startsWith('0')){alert('⚠️ Format: 08xxxxxxxxxx');return;}
+  startBlast(nomor);
+}
+
+async function startBlast(nomor){
+  running=true;
+  document.getElementById('deployBtn').textContent='■ Stop';
+  document.getElementById('deployBtn').classList.add('running');
+  document.getElementById('inputNomor').disabled=true;
+  document.getElementById('repWrap').classList.remove('show');
+
+  while(running){
+    // FASE 1: blast semua 50 serentak via server
+    setStatus(`⚡ ROUND ${roundN+1} — Mengirim 50 OTP serentak via server...`);
+    const success=await fireRound(nomor);
+    if(!success||!running) break;
+
+    // FASE 2: cooldown wajib 2 menit
+    await runCountdown(CD,'COOLDOWN WAJIB',`Cooldown round ${roundN}...`);
+    if(!running) break;
+
+    // FASE 3: interval pilihan (30s/60s)
+    await runInterval(selTime);
+  }
+}
+
+function stopBlast(){
+  running=false;
+  clearTimeout(mainTimer);
+  document.getElementById('deployBtn').textContent='Deploy';
+  document.getElementById('deployBtn').classList.remove('running');
+  document.getElementById('inputNomor').disabled=false;
+  document.getElementById('cdRingWrap').classList.remove('show');
+  document.getElementById('repWrap').classList.remove('show');
+  setStatus('⏹ Dihentikan','warn');
+}
+
+/* Countdown ring (cooldown 2 menit) */
+function runCountdown(sec,label,msg){
+  return new Promise(resolve=>{
+    if(!running){resolve();return;}
+    const wrap=document.getElementById('cdRingWrap');
+    const fg=document.getElementById('cdRingFg');
+    const timeEl=document.getElementById('cdRingTime');
+    const lbl=document.getElementById('cdLabel');
+    const CIRC=245;
+    wrap.classList.add('show');
+    document.getElementById('repWrap').classList.remove('show');
+    let left=sec;
+    function tick(){
+      if(!running){wrap.classList.remove('show');resolve();return;}
+      fg.style.strokeDashoffset=CIRC*(1-left/sec);
+      timeEl.textContent=`${Math.floor(left/60)}:${pad(left%60)}`;
+      lbl.textContent=msg+` (${Math.floor(left/60)}:${pad(left%60)})`;
+      setStatus(`⏳ ${label} — ${Math.floor(left/60)}:${pad(left%60)} tersisa`,'warn');
+      if(left<=0){wrap.classList.remove('show');resolve();return;}
+      left--;
+      mainTimer=setTimeout(tick,1000);
+    }
+    tick();
+  });
+}
+
+/* Interval pendek */
+function runInterval(sec){
+  return new Promise(resolve=>{
+    if(!running){resolve();return;}
+    const rw=document.getElementById('repWrap');
+    rw.classList.add('show');
+    let left=sec;
+    function tick(){
+      if(!running){rw.classList.remove('show');resolve();return;}
+      document.getElementById('repFill').style.width=(left/sec*100)+'%';
+      document.getElementById('repSec').textContent=left+'s';
+      document.getElementById('repMsg').textContent=`Next blast in ${left}s`;
+      setStatus(`⏱ Interval — blast berikutnya dalam ${left}s`);
+      if(left<=0){rw.classList.remove('show');resolve();return;}
+      left--;
+      mainTimer=setTimeout(tick,1000);
+    }
+    tick();
+  });
+}
+
+/* ════ FIRE ROUND — hit /api/blast ════ */
+async function fireRound(nomor){
+  roundN++;
+  document.getElementById('stRound').textContent=roundN;
+
+  const scroll=document.getElementById('logScroll');
+  document.getElementById('emptyLog')?.remove();
+
+  // Round header
+  const hdr=document.createElement('div');
+  hdr.className='round-hdr';
+  const nd=new Date();
+  hdr.textContent=`▶ ROUND ${roundN}  ·  ${pad(nd.getHours())}:${pad(nd.getMinutes())}:${pad(nd.getSeconds())}  ·  ${nomor}  ·  50 API SERENTAK`;
+  scroll.appendChild(hdr);
+
+  // Grid pending cards
+  const grid=document.createElement('div');
+  grid.className='otp-grid';
+  scroll.appendChild(grid);
+
+  // Render 50 pending cards
+  EP_LIST.forEach((ep,i)=>{
+    const card=document.createElement('div');
+    card.className='otp-card pend';
+    card.style.animationDelay=(i*8)+'ms';
+    card.id=`card_${roundN}_${i}`;
+    card.innerHTML=`<div class="oc-num">${rndOTP()}</div><div class="oc-name">${ep.cat==='A'?'💳':'🛒'} ${ep.name}</div><div class="oc-st pend" id="st_${roundN}_${i}">⟳ Sending...</div>`;
+    grid.appendChild(card);
+  });
+  scroll.scrollTop=scroll.scrollHeight;
+
+  // ── HIT /api/blast (server blast semua 50 serentak) ──
+  try{
+    const resp=await fetch('/api/blast',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({nomor}),
+      signal:AbortSignal.timeout(60000), // 60s max untuk 50 request
+    });
+
+    if(resp.status===429){
+      // Masih cooldown (dari server)
+      const data=await resp.json();
+      setStatus(`⏳ ${data.message}`,'warn');
+      // Tampilkan sisa cooldown
+      await runCountdown(data.cooldown,'SERVER COOLDOWN',`Server: ${data.message}`);
+      roundN--; // tidak count sebagai round
+      return true;
+    }
+
+    if(!resp.ok){
+      setStatus(`⚠️ Server error: ${resp.status}`,'warn');
+      return true;
+    }
+
+    const data=await resp.json();
+
+    // Update cards berdasarkan hasil dari server
+    data.results.forEach((r,i)=>{
+      const card=document.getElementById(`card_${roundN}_${i}`);
+      const st=document.getElementById(`st_${roundN}_${i}`);
+      if(!card||!st)return;
+      const ok=r.ok&&r.status>=100&&r.status<500;
+      card.classList.remove('pend');
+      card.classList.add(ok?'ok':'fail');
+      st.textContent=ok?`✓ ${r.status}`:`✗ ${r.status||'ERR'}`;
+      st.className='oc-st '+(ok?'ok':'fail');
+      totalSent++;
+      if(ok)totalOk++;else totalFail++;
+    });
+
+    // Update stats
+    document.getElementById('stTotal').textContent=totalSent;
+    document.getElementById('stOk').textContent=totalOk;
+    document.getElementById('stFail').textContent=totalFail;
+    document.getElementById('bTot').textContent=`TOTAL: ${totalSent}`;
+    document.getElementById('bOk').textContent=`✓ ${totalOk}`;
+    document.getElementById('bFail').textContent=`✗ ${totalFail}`;
+
+    setStatus(`✅ Round ${roundN} selesai — OK: ${data.ok} / FAIL: ${data.fail}`,'ok');
+    pulseDots();
+    scroll.scrollTop=scroll.scrollHeight;
+    return true;
+
+  }catch(err){
+    setStatus(`⚠️ Koneksi ke server gagal: ${err.message}`,'warn');
+    // Mark all as fail
+    EP_LIST.forEach((_,i)=>{
+      const card=document.getElementById(`card_${roundN}_${i}`);
+      const st=document.getElementById(`st_${roundN}_${i}`);
+      if(!card||!st)return;
+      card.classList.remove('pend');card.classList.add('fail');
+      st.textContent='✗ ERR';st.className='oc-st fail';
+    });
+    return true;
+  }
+}
+
+function rndOTP(){return String(Math.floor(100000+Math.random()*900000))}
+function pulseDots(){
+  const dots=document.querySelectorAll('.dot');let i=0;
+  const iv=setInterval(()=>{dots.forEach(d=>d.classList.remove('on'));dots[i%dots.length].classList.add('on');i++;if(i>=dots.length*3){clearInterval(iv);dots[0].classList.add('on');}},65);
+}
+
+/* ════ CLOCK ════ */
+const DAYS=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const MONTHS=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+function pad(n){return String(n).padStart(2,'0')}
+function tickClock(){
+  const n=new Date();
+  document.getElementById('clkT').textContent=`${pad(n.getHours())}:${pad(n.getMinutes())}`;
+  document.getElementById('clkD').textContent=`${DAYS[n.getDay()]}, ${n.getDate()} ${MONTHS[n.getMonth()]}`;
+}
+setInterval(tickClock,1000);
+</script>
+</body>
+</html>

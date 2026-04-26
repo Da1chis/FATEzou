@@ -1,0 +1,12 @@
+{
+  "name": "fatezou-v1",
+  "version": "1.0.0",
+  "description": "FATEzou V1 OTP Blast by Da1chi",
+  "private": true,
+  "engines": {
+    "node": ">=18.x"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}
